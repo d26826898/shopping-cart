@@ -1,0 +1,18 @@
+<% layout('layouts/boilerplate') -%>
+    <div class="col-6 offset-4 mt-3">
+        <div class="card" style="width: 25rem;">
+            <div class="card-header">
+                Shopping Cart
+            </div>
+            <ul class="list-group list-group-flush">
+                <% for (let item of cart.user) { %>
+                    <li class="list-group-item">
+                        <%=item.product.name%> price:$<%=item.product.price%> qty:<%= item.quantity%>
+                                    <form action="/cart/<%=item.product._id%>?_method=DELETE" method="POST">
+                                        <button class="btn btn-danger">remove</button>
+                                    </form>
+                    </li>
+                    <% } %>
+            </ul>
+        </div>
+    </div>

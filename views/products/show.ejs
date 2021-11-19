@@ -1,0 +1,44 @@
+<% layout('layouts/boilerplate') -%>
+    <div class="card mb-3 mt-5 col-8 offset-3" style="max-width: 1000px;">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="<%=product.image%>" class="img-fluid rounded-start" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <%=product.name%>
+                    </h5>
+                    <p class="card-text">
+                        <%=product.description%>
+                    </p>
+                    <p class="card-text">price:$<%=product.price%>
+                    </p>
+                    <p class="card-text">available quantity:<%=product.quantity%>
+                    </p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+            </div>
+        </div>
+        <form action="/products/<%=product._id%>?_method=DELETE" method="POST">
+            <button class="btn btn-danger">Delete</button>
+        </form>
+        <form action="/products/<%=product._id%>/edit" method="GET">
+            <button class="btn btn-warning">Edit</button>
+        </form>
+        <form action="/products" method="GET">
+            <button class="btn btn-secondary">All products</button>
+        </form>
+        <form action="/cart" method="POST">
+            <select name="cart[quantity]" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                <option selected>select the quantity</option>
+                <% for (let i=1; i <=product.quantity ; i++) { %>
+                    <option value="<%=i%>">
+                        <%= i%>
+                    </option>
+                    <% } %>
+            </select>
+            <input type="hidden" name="cart[product]" value=<%=product._id%>>
+            <button class="btn btn-secondary">Add to cart</button>
+        </form>
+    </div>
