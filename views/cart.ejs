@@ -7,10 +7,13 @@
             <ul class="list-group list-group-flush">
                 <% for (let item of cart.user) { %>
                     <li class="list-group-item">
-                        <%=item.product.name%> price:$<%=item.product.price%> qty:<%= item.quantity%>
-                                    <form action="/cart/<%=item.product._id%>?_method=DELETE" method="POST">
-                                        <button class="btn btn-danger">remove</button>
-                                    </form>
+                        <img src="<%=item.product.image%>" alt="image" style="height:3rem; width:auto;">
+                        <a href="/products/<%=item.product._id%>">
+                            <%=item.product.name%>
+                        </a> price:$<%=item.product.price%> qty:<%= item.quantity%>
+                                <form action="/cart/<%=item.product._id%>?_method=DELETE" method="POST">
+                                    <button class="btn btn-danger">remove</button>
+                                </form>
                     </li>
                     <% } %>
             </ul>

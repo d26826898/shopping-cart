@@ -32,8 +32,8 @@
         <form action="/cart" method="POST">
             <select name="cart[quantity]" class="form-select form-select-sm" aria-label=".form-select-sm example">
                 <option selected>select the quantity</option>
-                <% for (let i=1; i <=product.quantity ; i++) { %>
-                    <option value="<%=i%>">
+                <% for (let i=1; i <=(product.quantity - cartQuantity) ; i++) { %>
+                    <option value=<%=i%>>
                         <%= i%>
                     </option>
                     <% } %>

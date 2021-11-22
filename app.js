@@ -51,7 +51,16 @@ app.post('/products', async (req, res) => {
 app.get('/products/:id', async (req, res) => {
     const { id } = req.params;
     const product = await Product.findById(id);
-    res.render('products/show', { product });
+    var cartQuantity = 0;
+    if (req.session.cartId) {
+        const cart = await Cart.findOne({ _id: req.session.cartId });
+        const prod = cart.user.find(prod => prod.product == id);
+        if (prod) {
+            cartQuantity = prod.quantity;
+        }
+    }
+
+    res.render('products/show', { product, cartQuantity });
 });
 
 app.get('/products/:id/edit', async (req, res) => {
@@ -81,15 +90,26 @@ app.post('/cart', async (req, res) => {
     }
     else {
         const cart = await Cart.findById(req.session.cartId);
-        cart.user.push(req.body.cart);
-        await cart.save();
+        const productId = req.body.cart.product;
+
+        const prod = cart.user.find(prod => prod.product == productId);
+        if (prod) {
+            await Cart.updateOne({ _id: req.session.cartId, 'user.product': productId }, {
+                '$set': {
+                    'user.$.quantity': Number(prod.quantity) + Number(req.body.cart.quantity)
+                }
+            });
+        }
+        else {
+            cart.user.push(req.body.cart);
+            await cart.save();
+        }
     }
     res.redirect(`/products/${req.body.cart.product}`);
 })
 
 app.get('/cart', async (req, res) => {
     const cart = await Cart.findById(req.session.cartId).populate('user.product');
-    console.log(cart);
     res.render('cart', { cart });
 })
 
