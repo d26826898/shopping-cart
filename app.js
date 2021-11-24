@@ -5,8 +5,10 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const Product = require('./models/product');
 const Cart = require('./models/cart');
+const User = require('./models/user');
 
 const mongoose = require('mongoose');
+const passport = require("passport");
 
 main().catch(err => console.log(err))
     .then(console.log('connected to mongoDB'));
@@ -28,6 +30,18 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
 }))
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
+    next();
+})
 
 app.get('/', (req, res) => {
     res.send('Home page');
@@ -91,8 +105,9 @@ app.post('/cart', async (req, res) => {
     else {
         const cart = await Cart.findById(req.session.cartId);
         const productId = req.body.cart.product;
-
         const prod = cart.user.find(prod => prod.product == productId);
+
+        //if the product is already in shopping cart, then find it and update the quantity
         if (prod) {
             await Cart.updateOne({ _id: req.session.cartId, 'user.product': productId }, {
                 '$set': {
@@ -100,6 +115,7 @@ app.post('/cart', async (req, res) => {
                 }
             });
         }
+        //else, just push the new product into shopping cart
         else {
             cart.user.push(req.body.cart);
             await cart.save();
@@ -109,6 +125,7 @@ app.post('/cart', async (req, res) => {
 })
 
 app.get('/cart', async (req, res) => {
+
     const cart = await Cart.findById(req.session.cartId).populate('user.product');
     res.render('cart', { cart });
 })
@@ -119,5 +136,30 @@ app.delete('/cart/:productId', async (req, res) => {
     res.redirect('/cart');
 })
 
+app.get('/register', (req, res) => {
+    res.render('users/register');
+})
+
+app.post('/register', async (req, res) => {
+    const { email, username, password } = req.body;
+    await User.register({ username, email }, password);
+    res.redirect('/products');
+})
+
+app.get('/login', (req, res) => {
+    res.render('users/login');
+})
+
+app.post('/login',
+    passport.authenticate('local', { failureRedirect: '/login' }),
+    (req, res) => {
+        res.redirect('/products');
+    })
+
+
+app.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('/products');
+})
 
 app.listen(3000);
