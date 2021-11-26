@@ -97,19 +97,28 @@ app.put('/products/:id', async (req, res) => {
 
 app.post('/cart', async (req, res) => {
 
-    if (!req.session.cartId) {
-        const cart = new Cart({ user: req.body.cart });
-        await cart.save();
-        req.session.cartId = cart._id;
+    const cartId = req.user ? req.user._id : req.session.cartId;
+    const cart = await Cart.findById(cartId);
+
+    if (!cart) {
+        if (req.user) {
+            const cart = new Cart({ user: req.body.cart, _id: req.user._id });
+            await cart.save();
+        }
+        else {
+            const cart = new Cart({ user: req.body.cart });
+            await cart.save();
+            req.session.cartId = cart._id;
+        }
+
     }
     else {
-        const cart = await Cart.findById(req.session.cartId);
         const productId = req.body.cart.product;
         const prod = cart.user.find(prod => prod.product == productId);
 
         //if the product is already in shopping cart, then find it and update the quantity
         if (prod) {
-            await Cart.updateOne({ _id: req.session.cartId, 'user.product': productId }, {
+            await Cart.updateOne({ _id: cartId, 'user.product': productId }, {
                 '$set': {
                     'user.$.quantity': Number(prod.quantity) + Number(req.body.cart.quantity)
                 }
@@ -121,18 +130,20 @@ app.post('/cart', async (req, res) => {
             await cart.save();
         }
     }
+
     res.redirect(`/products/${req.body.cart.product}`);
 })
 
 app.get('/cart', async (req, res) => {
-
-    const cart = await Cart.findById(req.session.cartId).populate('user.product');
+    const cartId = req.user ? req.user._id : req.session.cartId;
+    const cart = await Cart.findById(cartId).populate('user.product');
     res.render('cart', { cart });
 })
 
 app.delete('/cart/:productId', async (req, res) => {
     const { productId } = req.params;
-    await Cart.updateOne({ _id: req.session.cartId }, { "$pull": { "user": { "product": productId } } });
+    const cartId = req.user ? req.user._id : req.session.cartId;
+    await Cart.updateOne({ _id: cartId }, { "$pull": { "user": { "product": productId } } });
     res.redirect('/cart');
 })
 
