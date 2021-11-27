@@ -57,7 +57,8 @@ app.get('/products/new', (req, res) => {
 });
 
 app.post('/products', async (req, res) => {
-    const product = new Product(req.body.product);
+    const product = new Product({ ...req.body.product, author: req.user._id });
+    console.log(product);
     await product.save();
     res.redirect('/products');
 });
@@ -86,13 +87,13 @@ app.get('/products/:id/edit', async (req, res) => {
 app.delete('/products/:id', async (req, res) => {
     const { id } = req.params;
     await Product.findByIdAndDelete(id);
-    res.redirect('/products');
+    res.redirect('/manage');
 })
 
 app.put('/products/:id', async (req, res) => {
     const { id } = req.params;
     await Product.findByIdAndUpdate(id, req.body.product);
-    res.redirect(`/products/${id}`);
+    res.redirect(`/manage`);
 })
 
 app.post('/cart', async (req, res) => {
@@ -172,5 +173,12 @@ app.get('/logout', (req, res) => {
     req.logout();
     res.redirect('/products');
 })
+
+app.get('/manage', async (req, res) => {
+    const products = await Product.find({ author: req.user._id });
+    res.render('manage', { products });
+})
+
+
 
 app.listen(3000);

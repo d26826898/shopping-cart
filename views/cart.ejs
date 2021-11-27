@@ -1,6 +1,6 @@
 <% layout('layouts/boilerplate') -%>
     <div class="col-6 offset-4 mt-3">
-        <div class="card" style="width: 25rem;">
+        <div class="card" style="width: 35rem;">
             <div class="card-header">
                 Shopping Cart
             </div>
@@ -12,7 +12,8 @@
                             <a href="/products/<%=item.product._id%>">
                                 <%=item.product.name%>
                             </a> price:$<%=item.product.price%> qty:<%= item.quantity%>
-                                    <form action="/cart/<%=item.product._id%>?_method=DELETE" method="POST">
+                                    <form style='display:inline;' action="/cart/<%=item.product._id%>?_method=DELETE"
+                                        method="POST">
                                         <button class="btn btn-danger">remove</button>
                                     </form>
                         </li>

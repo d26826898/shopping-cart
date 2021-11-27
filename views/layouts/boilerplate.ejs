@@ -19,13 +19,15 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    <a class="nav-link" href="/products/new">Add product</a>
+
                     <a class="nav-link" href="/cart">Cart</a>
 
 
                     <% if (currentUser){ %>
+                        <a class="nav-link" href="/manage">Product Management</a>
                         <a class="nav-link" href="/logout">Log out</a>
-                        <span class="nav-link disabled">Hello, you are logged in as <%=currentUser.username%></span>
+                        <span class="nav-link disabled">Hello, you are logged in as <%=currentUser.username%>
+                        </span>
                         <% } else { %>
 
                             <a class="nav-link" href="/register">Register</a>

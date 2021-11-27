@@ -20,14 +20,6 @@
                 </div>
             </div>
         </div>
-        <form action="/products/<%=product._id%>?_method=DELETE" method="POST">
-            <button class="btn btn-danger">Delete</button>
-        </form>
-        <form action="/products/<%=product._id%>/edit" method="GET">
-            <button class="btn btn-warning">Edit</button>
-        </form>
-        <form action="/products" method="GET">
-            <button class="btn btn-secondary">All products</button>
         </form>
         <form action="/cart" method="POST">
             <select name="cart[quantity]" class="form-select form-select-sm" aria-label=".form-select-sm example">
@@ -39,6 +31,6 @@
                     <% } %>
             </select>
             <input type="hidden" name="cart[product]" value=<%=product._id%>>
-            <button class="btn btn-secondary">Add to cart</button>
+            <button class="btn btn-warning">Add to cart</button>
         </form>
     </div>
