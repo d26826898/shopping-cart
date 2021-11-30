@@ -15,7 +15,11 @@ const orderSchema = new mongoose.Schema({
             ref: 'Product'
         },
         quantity: Number
-    }]
+    }],
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
 });
 
 const Order = mongoose.model('Order', orderSchema);

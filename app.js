@@ -180,7 +180,9 @@ app.get('/logout', (req, res) => {
 
 app.get('/manage', async (req, res) => {
     const products = await Product.find({ author: req.user._id });
-    res.render('users/manage', { products });
+    const orders = await Order.find({ seller: req.user._id }).populate('products.product');
+    console.log(orders);
+    res.render('users/manage', { products, orders });
 })
 
 app.get('/cart/proceed', async (req, res) => {
@@ -190,10 +192,8 @@ app.get('/cart/proceed', async (req, res) => {
 })
 
 app.post('/order', async (req, res) => {
-    const cart = await Cart.findById(req.user._id);
-    const order = new Order({ ...req.body, user: req.user._id });
-    order.products = cart.user;
-
+    const cart = await Cart.findById(req.user._id).populate('user.product');
+    const order = new Order({ ...req.body, user: req.user._id, seller: cart.user[0].product.author, products: cart.user });
     // update the quantity of products after someone puchase
     for (let item of cart.user) {
         const product = await Product.findById(item.product);
