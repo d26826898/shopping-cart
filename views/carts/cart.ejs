@@ -18,7 +18,18 @@
                                     </form>
                         </li>
                         <% } %>
-                            <% } %>
+
+                            <% if (cart.user[0]) {%>
+                                <li class="list-group-item">
+                                    <a href="/cart/proceed">
+                                        <button class="btn btn-success">Proceed</button>
+                                    </a>
+                                </li>
+                                <% } %>
+
+                                    <% } %>
+
+
             </ul>
         </div>
     </div>

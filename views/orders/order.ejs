@@ -1,0 +1,32 @@
+<% layout('layouts/boilerplate') -%>
+    <% for (let order of orders) { %>
+        <div class="card mt-3 col-6 offset-4" style="width: 25rem;">
+            <div class="card-header">
+                Order #<%=order._id%>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    Name: <%=order.name%>
+                </li>
+                <li class="list-group-item">
+                    Address: <%=order.address%>
+                </li>
+
+                <li class="list-group-item">
+                    Phone number: <%=order.phone%>
+                </li>
+
+                <li class="list-group-item">
+                    Products: <% for (let product of order.products) {%>
+                        <%=product.product.name%>
+                            (<%=product.product.quantity%>)
+                                <% } %>
+                </li>
+
+                <li class="list-group-item">
+                    Price: <%=order.price%>
+                </li>
+
+            </ul>
+        </div>
+        <%}%>

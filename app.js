@@ -9,6 +9,7 @@ const User = require('./models/user');
 
 const mongoose = require('mongoose');
 const passport = require("passport");
+const Order = require("./models/order");
 
 main().catch(err => console.log(err))
     .then(console.log('connected to mongoDB'));
@@ -67,11 +68,14 @@ app.get('/products/:id', async (req, res) => {
     const { id } = req.params;
     const product = await Product.findById(id);
     var cartQuantity = 0;
-    if (req.session.cartId) {
-        const cart = await Cart.findOne({ _id: req.session.cartId });
-        const prod = cart.user.find(prod => prod.product == id);
-        if (prod) {
-            cartQuantity = prod.quantity;
+    const cartId = req.user ? req.user._id : req.session.cartId;
+    if (cartId) {
+        const cart = await Cart.findOne({ _id: cartId });
+        if (cart) {
+            const prod = cart.user.find(prod => prod.product == id);
+            if (prod) {
+                cartQuantity = prod.quantity;
+            }
         }
     }
 
@@ -138,7 +142,7 @@ app.post('/cart', async (req, res) => {
 app.get('/cart', async (req, res) => {
     const cartId = req.user ? req.user._id : req.session.cartId;
     const cart = await Cart.findById(cartId).populate('user.product');
-    res.render('cart', { cart });
+    res.render('carts/cart', { cart });
 })
 
 app.delete('/cart/:productId', async (req, res) => {
@@ -176,7 +180,37 @@ app.get('/logout', (req, res) => {
 
 app.get('/manage', async (req, res) => {
     const products = await Product.find({ author: req.user._id });
-    res.render('manage', { products });
+    res.render('users/manage', { products });
+})
+
+app.get('/cart/proceed', async (req, res) => {
+    const cartId = req.user ? req.user._id : req.session.cartId;
+    const cart = await Cart.findById(cartId).populate('user.product');
+    res.render('carts/proceed', { cart });
+})
+
+app.post('/order', async (req, res) => {
+    const cart = await Cart.findById(req.user._id);
+    const order = new Order({ ...req.body, user: req.user._id });
+    order.products = cart.user;
+
+    // update the quantity of products after someone puchase
+    for (let item of cart.user) {
+        const product = await Product.findById(item.product);
+        const quantity = product.quantity - item.quantity;
+        await Product.updateOne({ _id: item.product }, { "quantity": quantity });
+    }
+
+    // empty the cart after purchasing
+    await Cart.findByIdAndDelete(req.user._id);
+
+    await order.save();
+    res.render('orders/success');
+})
+
+app.get('/order', async (req, res) => {
+    const orders = await Order.find({ user: req.user._id }).populate('products.product');
+    res.render('orders/order', { orders });
 })
 
 
